@@ -21,17 +21,10 @@ def main():
     print(nn["L1"]["W"].shape)
     print(nn["L1"]["b"].shape)
     #out = single_layer_forwardPass(trainingData, nn["L1"])
-    x = np.array([[1, 2], [1,2]])
-    x = softmax(x)
-    print(x)
-    print(softmax_gradient(x))
+    
     
     #out, outputMemory = forwardPass(trainingData, nn)
     
-
-    
-
-
 
 
 # Initializes the weight matrix and bias for a single layer to that of a zero-mean, std drawn from the gaussian normal dist
@@ -57,6 +50,8 @@ def initializeNetwork(NN_architecture, mean, std, seed=None):
                 neural_network[layerName] = {"W": W, "b": b, "activation": layer["activation"]}
 
         return neural_network
+
+
 
 # Trains the network using mini-batch gradient descent
 def trainNetwork():

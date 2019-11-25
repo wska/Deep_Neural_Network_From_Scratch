@@ -7,11 +7,20 @@ from scipy.io import loadmat
 
 # Loads one batch from the CIFAR-10 dataset
 def loadData(fileName):
+    # TODO Normalize data?
     data = loadmat(fileName)
+
+    
     X = np.array(data["data"])
+    
+    X = X.astype(float) # Converts the data to float64
+    X -= np.mean(X, axis=1).reshape(X.shape[0], 1) # Subtracts the mean
+    X /= np.std(X, axis=1).reshape(X.shape[0], 1) # Divides by the STD
+
     Y = np.array(data["labels"]) # Labels
 
     OneHotY = np.eye(10)[Y.reshape(-1)] # Converts to one-hot encoding
+    
     return X,Y,OneHotY
 
 # Softmax function
@@ -20,6 +29,7 @@ def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=1)
 
+'''
 # Softmax gradient
 def softmax_gradient(x): 
     n, _ = x.shape
@@ -32,6 +42,7 @@ def softmax_gradient(x):
             else: 
                 jacobian_m[i][j] = -x[i]*x[j]
     return jacobian_m
+'''
 
 # Sigmoid activation function centered around origin
 def sigmoid(x):
@@ -103,3 +114,6 @@ def computeAccuracy(Outputs, targets):
     
         Outputs = np.argmax(Outputs, axis=1).reshape((len(Outputs), 1))
         return ((Outputs == targets).sum() / Outputs.shape[0]) * 100
+
+
+
