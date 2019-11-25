@@ -66,6 +66,9 @@ class Relu():
     # Propagates the input backwards
     def backward(self, grads):
         return grads*self.activatedOutputs.T
+
+    def computeCost(self):
+        return 0
     
     def __str__(self):
         return "{} Layer".format(self.type)
