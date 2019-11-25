@@ -44,7 +44,7 @@ class Linear():
 
         return np.dot(grads, self.W)
 
-    def costFunction(self):
+    def computeCost(self):
         return self.regularization * (self.W**2).sum()
     
     def __str__(self):
