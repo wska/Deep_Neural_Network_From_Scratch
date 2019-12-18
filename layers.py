@@ -50,6 +50,8 @@ class Linear():
     def __str__(self):
         return "{} Layer, {}->{}".format(self.type, self.inputDim, self.outputDim)
 
+
+
 # Relu layer class.
 class Relu():
     def __init__(self):
@@ -73,6 +75,8 @@ class Relu():
     def __str__(self):
         return "{} Layer".format(self.type)
 
+
+
 # Softmax layer class. Uses categorical crossentropy for loss.
 class Softmax():
     def __init__(self):
@@ -88,15 +92,22 @@ class Softmax():
         grads = -(targets-self.probabilities).T
         return grads
     
+
+    def computeCost(self):
+        return 0
+    '''
     # Calculates the categorical cross entropy between the softmax predictions and the true targets.
     def computeCost(self, targets):
         assert targets.shape == self.probabilities.shape
         yhat = targets*np.log(self.probabilities)
         entropy = -np.sum(yhat)/targets.shape[1]
         return entropy
+    '''
 
     def __str__(self):
         return "{} Layer".format(self.type)
+
+
 
 
 # @TODO
