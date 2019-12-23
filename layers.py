@@ -71,6 +71,7 @@ class Relu():
         
     # Propagates the inputs through the layer
     def forward(self, inputs):
+        self.processedInput = inputs
         self.activatedOutputs = (inputs>0)
         inputs[inputs<0] = 0
         return inputs
@@ -85,6 +86,28 @@ class Relu():
     def __str__(self):
         return "{} Layer".format(self.type)
 
+
+# Sigmoid layer class.
+class Sigmoid():
+    def __init__(self):
+        self.type = "Sigmoid"
+        self.activatedOutputs = None
+        self.processedInput = None
+        
+    # Propagates the inputs through the layer
+    def forward(self, inputs):
+        return (2/(1+np.exp(-inputs)))-1
+    
+    # Propagates the input backwards
+    def backward(self, grads):
+        x = self.processedInput
+        return ((1+self.forward(x))*(1-self.forward(x)))/2
+
+    def computeCost(self):
+        return 0
+    
+    def __str__(self):
+        return "{} Layer".format(self.type)
 
 
 # Softmax layer class. Uses categorical crossentropy for loss.

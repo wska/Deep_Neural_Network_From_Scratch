@@ -58,8 +58,15 @@ class Model():
             for layer in self.layers[0:-1]:
                 totaltCost = totaltCost + layer.cost()
 
-        # @TODO
-        # elif self.loss == "binary_cross_entropy":
+
+        elif self.loss == "binary_cross_entropy":
+            m = predictions.shape[1]
+            binaryEntropy = -1 / m * (np.dot(targets, np.log(predictions).T) + np.dot(1 - targets, np.log(1 - predictions).T))
+            totaltCost = totaltCost + np.squeeze(binaryEntropy)
+
+            for layer in self.layers[0:-1]:
+                totaltCost = totaltCost + layer.cost()
+
 
         elif self.loss == "mse":
             totaltCost = totaltCost + np.mean((predictions-targets)**2)
@@ -121,5 +128,5 @@ class Model():
     def __str__(self):
         strrep = "Sequential Model: " + self.name +"\n"
         for i in range(len(self.layers)):
-            strrep = strrep + "Layer " + str(i) + ": Type:"  + " " + str(self.layers[i])
+            strrep = strrep + "     Layer " + str(i) + ": Type:"  + " " + str(self.layers[i]) + "\n"
         return strrep
