@@ -20,4 +20,4 @@ def loadData(fileName):
 
     OneHotY = np.eye(10)[Y.reshape(-1)] # Converts to one-hot encoding
     
-    return X,Y,OneHotY
+    return X.T, Y.T, OneHotY.T
