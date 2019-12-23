@@ -6,12 +6,9 @@ from scipy.io import loadmat
 
 # Loads one batch from the CIFAR-10 dataset
 def loadData(fileName):
-    # TODO Normalize data?
     data = loadmat(fileName)
-
-    
     X = np.array(data["data"])
-    
+
     X = X.astype(float) # Converts the data to float64
     X -= np.mean(X, axis=1).reshape(X.shape[0], 1) # Subtracts the mean
     X /= np.std(X, axis=1).reshape(X.shape[0], 1) # Divides by the STD

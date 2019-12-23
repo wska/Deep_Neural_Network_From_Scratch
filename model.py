@@ -26,6 +26,7 @@ class Model():
     # Performs a forward pass without training the network
     def predict(self, inputs):
         prediction = inputs
+
         for layer in self.layers:
             prediction = layer.forward(prediction)
         
@@ -44,9 +45,8 @@ class Model():
 
     # Computes the cost
     def computeCost(self, predictions, targets):
-        assert targets.shape == predictions.shape, "Predictions shape differs from target shape"
-
-        totaltCost = 0
+        
+        totaltCost = 0   
 
         ## Maybe dont need to use the probabilities. We have the predictions...
         if self.loss == "categorical_cross_entropy":
@@ -60,7 +60,7 @@ class Model():
 
 
         elif self.loss == "binary_cross_entropy":
-            m = predictions.shape[1]
+            m = predictions.shape[0]
             binaryEntropy = -1 / m * (np.dot(targets, np.log(predictions).T) + np.dot(1 - targets, np.log(1 - predictions).T))
             totaltCost = totaltCost + np.squeeze(binaryEntropy)
 
@@ -74,9 +74,6 @@ class Model():
             for layer in self.layers[0:-1]:
                 totaltCost = totaltCost + layer.cost()
 
-        # @TODO
-        # elif self.loss == "mape":
-
         elif self.loss == "None":
             for layer in self.layers:
                 totaltCost = totaltCost + layer.cost()
@@ -84,7 +81,7 @@ class Model():
         return totaltCost
 
 
-
+    # Computes the accuracy of the predictions given the targets
     def computeAccuracy(self, predictions, targets):
         assert predictions.shape == targets.shape
         accuracy = np.sum(np.argmax(predictions, axis=0) == np.argmax(targets, axis=0)) / predictions.shape[1]
@@ -115,15 +112,13 @@ class Model():
 
 
     # Fits the model to the data using the optimizer and loss function specified during compile
-    def fit(self, inputs, targets, epochs, batch_size=None):
+    def fit(self, inputs, targets, epochs=1, validationData=None, batch_size=None):
         if self.loss is None or self.optimizer is None:
             raise ValueError("Model not compiled")
         
-        
-        pass
-
-
-
+        self.optimizer.train(x_train=inputs, y_train=targets,\
+              validationData=validationData,\
+              epochs=epochs, batch_size=batch_size)
 
     def __str__(self):
         strrep = "Sequential Model: " + self.name +"\n"

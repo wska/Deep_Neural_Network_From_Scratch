@@ -26,9 +26,14 @@ class Linear():
         
     # Propagates the inputs through the layer
     def forward(self, inputs):
-        assert inputs.T.shape == (self.inputDim, self.outputDim)
+        #assert inputs.shape[1] == self.inputDim, "Input dimensions does not agree."
+
+        # If single sample, expand dimensions from (X,) -> (X,1)
+        if len(inputs.shape) == 1:
+            inputs = np.resize(inputs, (inputs.shape[0], 1))
+
         self.processedInput = inputs
-        return np.dot(self.W, inputs) + self.b
+        return (np.dot(self.W, inputs) + self.b)
     
 
     def backward(self, grads):
@@ -54,7 +59,7 @@ class Linear():
 
         return np.dot(grads, self.W)
 
-    def computeCost(self):
+    def cost(self):
         return self.regularization * (self.W**2).sum()
     
     def __str__(self):
@@ -80,7 +85,7 @@ class Relu():
     def backward(self, grads):
         return grads*self.activatedOutputs.T
 
-    def computeCost(self):
+    def cost(self):
         return 0
     
     def __str__(self):
@@ -103,7 +108,7 @@ class Sigmoid():
         x = self.processedInput
         return ((1+self.forward(x))*(1-self.forward(x)))/2
 
-    def computeCost(self):
+    def cost(self):
         return 0
     
     def __str__(self):
@@ -117,7 +122,11 @@ class Softmax():
         self.probabilities = None
     
     def forward(self, inputs):
-        self.probabilities = np.exp(inputs) / np.sum(np.exp(inputs), axis = 0)
+        self.probabilities = (np.exp(inputs) / np.sum(np.exp(inputs), axis = 0))
+        # If single sample, expand dimensions from (X,) -> (X,1)
+        #if len(self.probabilities.shape) == 1:
+        #    self.probabilities = np.resize(self.probabilities, (self.probabilities.shape[0], 1))
+
         return self.probabilities
     
     def backward(self, targets):
@@ -126,7 +135,7 @@ class Softmax():
         return grads
     
 
-    def computeCost(self):
+    def cost(self):
         return 0
     '''
     # Calculates the categorical cross entropy between the softmax predictions and the true targets.
@@ -166,7 +175,7 @@ class BatchNormalization():
     def backward(self, grads):
        return
 
-    def costFunction(self):
+    def cost(self):
         return
     
     def __str__(self):

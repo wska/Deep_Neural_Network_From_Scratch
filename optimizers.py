@@ -13,29 +13,28 @@ class SGD():
         self.momentum = momentum
         self.history = {}
 
-    def fit(self, x_train, y_train, validationData=None, epochs=1, batch_size=None):
+    def train(self, x_train, y_train, validationData=None, epochs=1, batch_size=None):
         if batch_size is None:
-            print(x_train.shape)
-            batch_size = x_train.shape[0] # check if this is actually the number of samples
+            batch_size = x_train.shape[1] # check if this is actually the number of samples
 
         for epoch in range(1, epochs+1):
-            trainCost, trainAcc = self.fit_epoch(x_train, y_train, batch_size)
+            trainCost, trainAcc = self.train_epoch(x_train, y_train, batch_size)
             self.append_history(trainCost, trainAcc, validationData, epoch)
             self.previous_lr = self.lr
             self.lr *= self.lr_decay 
 
-    def fit_epoch(self, x_train, y_train, batch_size):
-        if x_train.shape[0] != y_train.shape[0]:
-            raise ValueError("Number of samples and labels does not match.")
+    def train_epoch(self, x_train, y_train, batch_size):
+        assert x_train.shape[1] == y_train.shape[1], "Number of samples and labels does not match."
+
         trainCost = []
         trainAccuracy = []
 
         if self.shuffle:
-            trainingIndices = np.random.permutation(x_train.shape[0])
+            trainingIndices = np.random.permutation(x_train.shape[1])
         else:
-            trainingIndices = np.arange(x_train.shape[0])
+            trainingIndices = np.arange(x_train.shape[1])
         
-        for batch in range(0, x_train.shape[0], batch_size):
+        for batch in range(0, x_train.shape[1], batch_size):
             indices = trainingIndices[batch: batch+batch_size]
             cost, accuracy = self.model.evaluate(x_train[:, indices], y_train[:, indices])
             trainCost.append(cost)
@@ -62,7 +61,6 @@ class SGD():
 
                         layer.b -= self.lr * layer.gradb \
                             + self.previous_lr * self.momentum * layer.previousGradb # Momentum term
-                            
             # Layers with no trainable attribute will be skipped
             except AttributeError:
                 pass
@@ -72,11 +70,11 @@ class SGD():
     def append_history(self, trainCost, trainAcc, validationData, epoch):
         
         # EPOCHS
-        if "epoch" in self.history.keys():
-            self.history["epoch"].append(epoch)
+        if "epochs" in self.history.keys():
+            self.history["epochs"].append(epoch)
         
         else:
-            self.history["epoch"] = [epoch]
+            self.history["epochs"] = [epoch]
 
         # TRAINING ACCURACY
         if "accuracy" in self.history.keys():
@@ -96,7 +94,7 @@ class SGD():
             valCost, valAcc = self.model.evaluate(validationData[0], validationData[1])
 
             # VALIDATION ACCURACY
-            if "accuracy" in self.history.keys():
+            if "val_accuracy" in self.history.keys():
                 self.history["val_accuracy"].append(valAcc)
             
             else:
