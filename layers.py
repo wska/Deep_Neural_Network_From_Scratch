@@ -3,19 +3,24 @@ import numpy as np
 
 # Linear layer class.
 class Linear():
-    def __init__(self, inputDim, outputDim, name=None, regularization=0, initializer=None, std=0.01, mean=0):
+    def __init__(self, inputDim, outputDim, name=None, regularization=0, initializer=None, std=0.01, mean=0, trainable=True):
         self.type = "Linear"
         self.name = self.type if name is None else name
         self.inputDim = inputDim
         self.outputDim = outputDim
         self.regularization = regularization
+        self.trainable = trainable
 
         if initializer == None or initializer == "normal":
             # Initializes W and b with a gaussian normal of mean and std. 
             self.W = np.random.normal(mean, std, (outputDim, inputDim))
             self.b = np.random.normal(mean, std, (outputDim, 1))
+
         self.gradW = np.zeros(self.W.shape, dtype=float)
+        self.previousGradW = np.zeros(self.W.shape, dtype=float)
+
         self.gradb = np.zeros(self.b.shape, dtype=float)
+        self.previousGradb = np.zeros(self.b.shape, dtype=float)
 
         self.processedInput = None
         
@@ -27,6 +32,11 @@ class Linear():
     
 
     def backward(self, grads):
+        # Saves current gradients for use in momentum
+        self.previousGradW = self.gradW
+        self.previousGradb = self.gradb
+
+        # Resets the current gradients and calculates the new ones for the current batch
         self.gradW = np.zeros(self.W.shape, dtype=float)
         self.gradb = np.zeros(self.b.shape, dtype=float)
         sizeOfMinibatch = self.processedInput.shape[1]

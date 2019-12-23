@@ -71,10 +71,13 @@ def forwardPass(data, nn):
 
         return layerInput, inputMemory
 
+
+
 # TODO BACKWARD PASS ALGORITHM
 def backwardPass(predictions, targets, nn, memory):
 
         return
+
 
 def updateWeights():
         return
