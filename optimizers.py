@@ -36,6 +36,7 @@ class SGD():
         
         for batch in range(0, x_train.shape[1], batch_size):
             indices = trainingIndices[batch: batch+batch_size]
+
             cost, accuracy = self.model.evaluate(x_train[:, indices], y_train[:, indices])
             trainCost.append(cost)
             trainAccuracy.append(accuracy)
@@ -55,12 +56,14 @@ class SGD():
 
                     # Linear layer case
                     if type(layer) is Linear:
+                        
+                        # @TODO FIX TO SAVE PREVIOUS UPDATE VECTOR INSTEAD
+                        layer.W -= (self.lr * layer.gradW \
+                            + self.lr * self.momentum * layer.previousGradW) # Momentum term
 
-                        layer.W -= self.lr * layer.gradW \
-                            + self.previous_lr * self.momentum * layer.previousGradW # Momentum term
+                        layer.b -= (self.lr * layer.gradb \
+                            + self.lr * self.momentum * layer.previousGradb) # Momentum term
 
-                        layer.b -= self.lr * layer.gradb \
-                            + self.previous_lr * self.momentum * layer.previousGradb # Momentum term
             # Layers with no trainable attribute will be skipped
             except AttributeError:
                 pass
