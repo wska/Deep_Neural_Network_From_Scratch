@@ -13,10 +13,10 @@ class Model():
     def addLayer(self, layer):
         self.layers.append(layer)
     
-    # Performs the forward pass wand train the network
+    # Performs the forward pass and evaluates the network
     # Returns the loss value & metrics values
-    def evaluate(self, inputs, targets):
-        predictions = self.predict(inputs)
+    def evaluate(self, inputs, targets, updateInternal=False):
+        predictions = self.predict(inputs, updateInternal)
         cost = self.computeCost(predictions, targets)
         accuracy = self.computeAccuracy(predictions, targets)
 
@@ -24,17 +24,19 @@ class Model():
 
     
     # Performs a forward pass without training the network
-    def predict(self, inputs):
+    def predict(self, inputs, updateInternal=False):
         prediction = inputs
 
         for layer in self.layers:
-            prediction = layer.forward(prediction)
+            if type(layer) != BatchNormalization:
+                prediction = layer.forward(prediction)
+            else:
+                prediction = layer.forward(prediction, updateInternal)
         
         return prediction
 
-
+    # Propagates the targets(one hot encoding) back through the network
     def backpropagate(self, targets):
-        #assert self.layers[-1].type == "Softmax"
         grad = self.layers[-1].backward(targets)  
         for layer in self.layers[-2::-1]:
             grad = layer.backward(grad)
@@ -58,7 +60,7 @@ class Model():
             for layer in self.layers[0:-1]:
                 totaltCost = totaltCost + layer.cost()
 
-
+        # NOT TESTED YET
         elif self.loss == "binary_cross_entropy":
             m = predictions.shape[0]
             binaryEntropy = -1 / m * (np.dot(targets, np.log(predictions).T) + np.dot(1 - targets, np.log(1 - predictions).T))
@@ -67,7 +69,7 @@ class Model():
             for layer in self.layers[0:-1]:
                 totaltCost = totaltCost + layer.cost()
 
-
+        # NOT TESTED YET
         elif self.loss == "mse":
             totaltCost = totaltCost + np.mean((predictions-targets)**2)
 
@@ -112,13 +114,15 @@ class Model():
 
 
     # Fits the model to the data using the optimizer and loss function specified during compile
-    def fit(self, inputs, targets, epochs=1, validationData=None, batch_size=None):
+    def fit(self, inputs, targets, epochs=1, validationData=None, batch_size=None, verbose=True):
         if self.loss is None or self.optimizer is None:
             raise ValueError("Model not compiled")
         
+        
         self.optimizer.train(x_train=inputs, y_train=targets,\
               validationData=validationData,\
-              epochs=epochs, batch_size=batch_size)
+              epochs=epochs, batch_size=batch_size, verbose=verbose)
+
 
     def __str__(self):
         strrep = "Sequential Model: " + self.name +"\n"
