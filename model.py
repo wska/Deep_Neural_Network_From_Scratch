@@ -1,6 +1,7 @@
 import numpy as np
 from layers import *
 from optimizers import SGD
+import copy
 
 class Model():
     def __init__(self, name="Model"):
@@ -94,13 +95,14 @@ class Model():
     # Initializes the attributes for the optimizer and the loss function. 
     # Also adds a reference for the optimizer to the current model(for access to the forward and backward pass of the network)
     def compile(self, optimizer="SGD", loss="cce"):
+
         if type(optimizer) is str:
             if optimizer == "SGD":
                 self.optimizer = SGD()
             else:
                 raise NameError("Unrecognized optimizer")
         else:
-            self.optimizer = optimizer
+            self.optimizer = copy.deepcopy(optimizer)
         
         # Adds reference for the optimizer to the model
         self.optimizer.model = self

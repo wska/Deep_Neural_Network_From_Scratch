@@ -307,9 +307,6 @@ def test3layergradientsWBN(samples=1, dimensions=3072):
     print("\n")
 
 
-
-
-
 def test4layergradients(samples=1, dimensions=3072):
 
     print("\n\nTesting 4-layer gradients using a batch size of {}".format(samples))
@@ -569,7 +566,214 @@ def bn_test():
     print(np.mean(data, axis=1))
     print(np.std(data, axis=1))
 
+def bn_3_layer_test(epochs=2, reg=0.0, lr=0.01, momentum=0.7):
+
+    trainingData, trainingLabels, \
+    validationData, validationLabels, \
+    testingData, testingLabels = loadAllData("Datasets/cifar-10-batches-mat/", valsplit=0.20)
+    timestamp = datetime.now().strftime('%Y-%b-%d--%H-%M-%S')
+
+
+    network = Model(name="NO BN")
     
+    network.addLayer(Linear(32*32*3, 50, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(50, trainable=True))
+    network.addLayer(Relu())
+    network.addLayer(Linear(50, 30, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True))
+    network.addLayer(Relu())
+    network.addLayer(Linear(30,10, regularization=reg, initializer="he"))
+    network.addLayer(Softmax())
+
+    sgd = SGD(lr=lr, lr_decay=1.00, momentum=momentum, shuffle=True, lr_min=1e-5)  
+ 
+    network.compile(sgd, "cce")
+    network.fit(trainingData, trainingLabels, epochs=epochs, batch_size=64, validationData=(validationData, validationLabels))
+    
+    loss, acc = network.evaluate(testingData, testingLabels)
+    print("NO BN: Test loss: {} , Test acc: {}".format(loss, acc) )
+
+
+    networkBN = Model(name="WITH BN")
+    networkBN.addLayer(Linear(32*32*3, 50, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(50, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+    networkBN.addLayer(Linear(50, 30, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+    networkBN.addLayer(Linear(30,10, regularization=reg, initializer="he"))
+    networkBN.addLayer(Softmax())
+
+    sgd2 = SGD(lr=lr, lr_decay=1.00, momentum=momentum, shuffle=True, lr_min=1e-5)  
+ 
+    networkBN.compile(sgd2, "cce")
+    networkBN.fit(trainingData, trainingLabels, epochs=epochs, batch_size=64, validationData=(validationData, validationLabels))
+    #plotAccuracy(network, "plots/", timestamp)
+    #plotLoss(network, "plots/", timestamp)
+    
+    loss, acc = networkBN.evaluate(testingData, testingLabels)
+    print("W BN: Test loss: {} , Test acc: {}".format(loss, acc) )
+
+    multiPlotLoss((network, networkBN), "plots/", timestamp, title="3-layer network loss over epochs, eta:{}, lambda:{}".format(lr, reg))
+    multiPlotAccuracy((network, networkBN), "plots/", timestamp, title="3-layer network accuracy over epochs, eta:{}, lambda:{}".format(lr, reg))
+
+
+def bn_2_layer_test(epochs=2, reg=0.0, lr=0.01, momentum=0.7):
+
+    trainingData, trainingLabels, \
+    validationData, validationLabels, \
+    testingData, testingLabels = loadAllData("Datasets/cifar-10-batches-mat/", valsplit=0.20)
+    timestamp = datetime.now().strftime('%Y-%b-%d--%H-%M-%S')
+
+
+    network = Model(name="2-layer(NO BN)")
+    
+    network.addLayer(Linear(32*32*3, 50, regularization=reg, initializer="he"))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(50,10, regularization=reg, initializer="he"))
+    network.addLayer(Softmax())
+
+    sgd = SGD(lr=lr, lr_decay=1.00, momentum=momentum, shuffle=True, lr_min=1e-5)  
+ 
+    network.compile(sgd, "cce")
+    network.fit(trainingData, trainingLabels, epochs=epochs, batch_size=64, validationData=(validationData, validationLabels))
+    
+
+
+    networkBN = Model(name="2-layer(WITH BN)")
+    networkBN.addLayer(Linear(32*32*3, 50, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(50, trainable=True, alpha=0.90))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(50,10, regularization=reg, initializer="he"))
+    networkBN.addLayer(Softmax())
+
+    sgd2 = SGD(lr=lr, lr_decay=1.00, momentum=momentum, shuffle=True, lr_min=1e-5)  
+ 
+    networkBN.compile(sgd2, "cce")
+    networkBN.fit(trainingData, trainingLabels, epochs=epochs, batch_size=64, validationData=(validationData, validationLabels))
+
+    #plotAccuracy(network, "plots/", timestamp)
+    #plotLoss(network, "plots/", timestamp)
+    
+    #loss, acc = network.evaluate(testingData, testingLabels)
+    #print("Test loss: {} , Test acc: {}".format(loss, acc) )
+
+    #plotAccuracy(network, "plots/", timestamp, title="2-layer(NO BN) accuracy over epochs", fileName="nobnacc")
+    #plotLoss(network, "plots/", timestamp, title="2-layer(NO BN) loss over epochs", fileName="nobnloss")
+
+    #plotAccuracy(networkBN, "plots/", timestamp, title="2-layer(WITH BN) accuracy over epochs", fileName="bnacc")
+    #plotLoss(networkBN, "plots/", timestamp, title="2-layer(WITH BN) loss over epochs", fileName="bnloss")
+
+    multiPlotLoss((network, networkBN), "plots/", timestamp, title="2-layer network loss over epochs, eta:{}, lambda:{}".format(lr, reg))
+    multiPlotAccuracy((network, networkBN), "plots/", timestamp, title="2-layer network accuracy over epochs, eta:{}, lambda:{}".format(lr, reg))
+
+    
+def bn_9_layer_test(epochs=2, reg=0.0, lr=0.01, momentum=0.7):
+
+    trainingData, trainingLabels, \
+    validationData, validationLabels, \
+    testingData, testingLabels = loadAllData("Datasets/cifar-10-batches-mat/", valsplit=0.20)
+    timestamp = datetime.now().strftime('%Y-%b-%d--%H-%M-%S')
+
+
+    network = Model(name="NO BN")
+    network.addLayer(Linear(32*32*3, 50, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(50, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(50, 30, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(30, 20, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(20, 20, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(20, 10, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(10, 10, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(10, 10, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(10, 10, regularization=reg, initializer="he"))
+    #network.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    network.addLayer(Relu())
+
+    network.addLayer(Linear(10,10, regularization=reg, initializer="he"))
+    network.addLayer(Softmax())
+
+    sgd = SGD(lr=lr, lr_decay=1.00, momentum=momentum, shuffle=True, lr_min=1e-5)  
+ 
+    network.compile(sgd, "cce")
+    network.fit(trainingData, trainingLabels, epochs=epochs, batch_size=100, validationData=(validationData, validationLabels))
+    
+    
+
+
+    networkBN = Model(name="WITH BN")
+    networkBN.addLayer(Linear(32*32*3, 50, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(50, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(50, 30, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(30, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(30, 20, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(20, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(20, 20, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(20, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(20, 10, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(10, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(10, 10, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(10, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(10, 10, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(10, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(10, 10, regularization=reg, initializer="he"))
+    networkBN.addLayer(BatchNormalization(10, trainable=True, alpha=0.99))
+    networkBN.addLayer(Relu())
+
+    networkBN.addLayer(Linear(10,10, regularization=reg, initializer="he"))
+    networkBN.addLayer(Softmax())
+
+    sgd2 = SGD(lr=lr, lr_decay=1.00, momentum=momentum, shuffle=True, lr_min=1e-5)  
+ 
+    networkBN.compile(sgd2, "cce")
+    networkBN.fit(trainingData, trainingLabels, epochs=epochs, batch_size=100, validationData=(validationData, validationLabels))
+    #plotAccuracy(network, "plots/", timestamp)
+    #plotLoss(network, "plots/", timestamp)
+
+    loss, acc = network.evaluate(testingData, testingLabels)
+    print("NO BN: Test loss: {} , Test acc: {}".format(loss, acc) )
+    
+    loss, acc = networkBN.evaluate(testingData, testingLabels)
+    print("W BN: Test loss: {} , Test acc: {}".format(loss, acc) )
+
+    multiPlotLoss((network, networkBN), "plots/", timestamp, title="9-layer network loss over epochs, eta:{}, lambda:{}".format(lr, reg))
+    multiPlotAccuracy((network, networkBN), "plots/", timestamp, title="9-layer network accuracy over epochs, eta:{}, lambda:{}".format(lr, reg))
+
 
 def main():
 
@@ -582,6 +786,12 @@ def main():
     #test2layergradients(8, 10)
     #test2layergradients(16, 10)
     #test2layergradients(64, 10)
+
+    #test3layergradientsWBN(100, 10)
+
+    #bn_2_layer_test(epochs=10, lr=0.1, reg=0, momentum=0.9)
+    #bn_3_layer_test(epochs=100, lr=0.065, reg=0.002, momentum=0.9)
+    #bn_9_layer_test(epochs=20, lr=0.065, reg=0.002, momentum=0.9)
 
     pass
 

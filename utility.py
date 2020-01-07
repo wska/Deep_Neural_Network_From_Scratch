@@ -69,33 +69,83 @@ def normalize(X, testData=None):
 
     return X, testData
 
-def plotAccuracy(history, path_plots, timestamp):
+def plotAccuracy(history, path_plots, timestamp, title='Model accuracy over epochs', fileName = None):
     # summarize history for accuracy
     plt.plot(history.history['accuracy'])
     try:
         plt.plot(history.history['val_accuracy'])
-        plt.legend(['train', 'validation'], loc='upper left')
+        plt.legend(['Train', 'Validation'], loc='upper left')
     except KeyError:
-        plt.legend(['train'], loc='upper left')
+        plt.legend(['Train'], loc='upper left')
 
-    plt.title('Model accuracy over epochs')
+    plt.title(title)
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
-    plt.savefig(os.path.join(path_plots, timestamp + '_acc.png'))
-    # plt.show()
+    if fileName is None:
+        plt.savefig(os.path.join(path_plots, timestamp + '_acc.png'))
+    else:
+        plt.savefig(os.path.join(path_plots, fileName + '.png'))
+    # plt.show(), fileName = None):
     plt.cla()
     
 
-def plotLoss(history, path_plots,timestamp):
+def plotLoss(history, path_plots,timestamp, title='Loss function over epochs', fileName = None):
     # summarize history for loss
     plt.plot(history.history['cost'])
     try:
         plt.plot(history.history['val_cost'])
-        plt.legend(['train', 'validation'], loc='upper left')
+        plt.legend(['Train', 'Validation'], loc='upper left')
     except KeyError:
-        plt.legend(['train'], loc='upper left')
+        plt.legend(['Train'], loc='upper left')
 
-    plt.title('Loss function over epochs')
+    plt.title(title)
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    if fileName is None:
+        plt.savefig(os.path.join(path_plots, timestamp + '_cost.png'))
+    else:
+        plt.savefig(os.path.join(path_plots, fileName + '.png'))
+    # plt.show()
+    plt.cla()
+
+
+
+def multiPlotAccuracy(historys, path_plots,timestamp, title='Accuracy over epochs'):
+    legend = []
+    for history in historys:
+        plt.plot(history.history['accuracy'])
+        try:
+            plt.plot(history.history['val_accuracy'])
+            legend.append(history.history["name"] + '(train)')
+            legend.append(history.history["name"] + '(validation)')
+
+        except KeyError:
+            legend.append(history.history["name"] + '(train)')
+            
+    plt.legend(legend, loc='upper left')
+    plt.title(title)
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.savefig(os.path.join(path_plots, timestamp + '_accuracy.png'))
+    # plt.show()
+    plt.cla()
+
+
+
+def multiPlotLoss(historys, path_plots,timestamp, title='Loss function over epochs'):
+    legend = []
+    for history in historys:
+        plt.plot(history.history['cost'])
+        try:
+            plt.plot(history.history['val_cost'])
+            legend.append(history.history["name"] + '(train)')
+            legend.append(history.history["name"] + '(validation)')
+
+        except KeyError:
+            legend.append(history.history["name"] + '(train)')
+
+    plt.legend(legend, loc='upper left')
+    plt.title(title)
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
     plt.savefig(os.path.join(path_plots, timestamp + '_cost.png'))
@@ -103,20 +153,46 @@ def plotLoss(history, path_plots,timestamp):
     plt.cla()
 
 
+
 def plotGrid(data, path_plots=None,timestamp=None):
     # summarize history for loss
     x,y,z = data[0], data[1], data[2]
+    axisDimensions = data[3]
+    x = np.array(x)
+    y = np.array(y)
+    z = np.array(z)
+
+    x = x.reshape(axisDimensions)
+    y = y.reshape(axisDimensions)
+    z = z.reshape(axisDimensions)
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    ax.contour3D(x, y, z, 50, cmap='binary')
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
+    ax.contourf(x, y, z, 50, cmap='jet' )
+    ax.set_xlabel('Learning rate')
+    ax.set_ylabel('Lambda')
+    ax.set_zlabel('Accuracy')
+
+    plt.show()
+
+def plotSavedGrid(path_plots="" ,timestamp=None):
+
+    x = np.load(path_plots+"x.npy")
+    y = np.load(path_plots+"y.npy")
+    z = np.load(path_plots+"z.npy")
+
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.contour3D(x, y, z, 50, cmap='jet' )
+    ax.set_xlabel('Learning rate')
+    ax.set_ylabel('Lambda')
+    ax.set_zlabel('Accuracy')
+
+    plt.show()
 
 
-data = [np.arange(0,1,0.05), np.arange(0,1,0.05), np.arange(0,1,0.05)]
-plotGrid(data)
+#data = [np.arange(0,1,0.05), np.arange(0,1,0.05), np.arange(0,1,0.05)]
+#plotGrid(data)
 
 # Analytical computations of the gradients for verifying correctness (centered difference theorem)
 # @WARNING Takes quite a while for large matrices

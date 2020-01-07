@@ -55,21 +55,37 @@ def regularizationSearch():
     return bestLambda, bestValAcc, bestLoss
 
 
-def paramSearch():
+def paramSearch(method="range"):
 
     trainingData, trainingLabels, \
     validationData, validationLabels, \
-    testingData, testingLabels = loadAllData("Datasets/cifar-10-batches-mat/", valsplit=0.10)    
+    testingData, testingLabels = loadAllData("Datasets/cifar-10-batches-mat/", valsplit=0.20)    
+
+
 
     bestLambda = 0.0
     bestLR = 0.0
     bestValAcc = 0.0
     bestLoss = 0.0
+    bestModel = None
 
     data = [[],[],[]]
     
-    for lambdaValue in np.arange(0, 0.1, 0.01):
-        for lr in np.arange(0.01, 0.1, 0.01):
+    if method == "range":
+        lambdaValues = np.arange(0, 0.05, 0.001)
+        lrValues = np.arange(0.04, 0.08, 0.005)
+
+    elif method == "sampling":
+        lrValues = np.random.uniform(0.06, 0.07, 15)
+        lambdaValues = np.random.uniform(0.001, 0.005, 15)
+        
+    data.append((lrValues.shape[0], lambdaValues.shape[0])) # Append axis dimensions for 3D plotting
+
+
+
+    for lambdaValue in lambdaValues:
+        for lr in lrValues:
+
 
             print("Lambda:{}".format(lambdaValue))
             print("LR:{}".format(lr))
@@ -92,7 +108,7 @@ def paramSearch():
             
             timestamp = datetime.now().strftime('%Y-%b-%d--%H-%M-%S')
 
-            network.fit(trainingData, trainingLabels, epochs=1, validationData=(validationData, validationLabels), batch_size=100, verbose=False)
+            network.fit(trainingData, trainingLabels, epochs=20, validationData=(validationData, validationLabels), batch_size=100, verbose=False)
 
             
             #plotAccuracy(network, "plots/", timestamp)
@@ -111,14 +127,23 @@ def paramSearch():
                 bestLR = lr
                 bestValAcc = acc
                 bestLoss = loss
+                bestModel = network
     
+
+
+    loss, acc = bestModel.evaluate(testingData, testingLabels)
+    print("Test loss: {} , Test acc: {}".format(loss, acc) )
+    print("\n\n")
+
     return bestLambda, bestLR,  bestValAcc, bestLoss, data
+
+
 
 def main():
     #regularizationSearch()
-    bestLambda, bestLR,  bestValAcc, bestLoss , data = paramSearch()
-    print("Best Parameters = Lambda:{}, LR:{}, Acc:{}, Loss:{}".format(bestLambda, bestLR, bestValAcc, bestLoss))
-    plotGrid(data)
-
+    #bestLambda, bestLR,  bestValAcc, bestLoss , data = paramSearch(method="sampling")
+    #print("Best Parameters = Lambda:{}, LR:{}, Acc:{}, Loss:{}".format(bestLambda, bestLR, bestValAcc, bestLoss))
+    #plotGrid(data)
+    plotSavedGrid("plots/fineSearchSpace/")
 if __name__ == "__main__":
     main()
