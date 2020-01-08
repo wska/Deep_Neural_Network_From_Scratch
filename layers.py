@@ -76,6 +76,28 @@ class Linear():
         return "{} Layer, {}->{}".format(self.type, self.inputDim, self.outputDim)
 
 
+class RNN():
+    def __init__(self, inputDim, outputDim, name=None, regularization=0, initializer=None, std=0.01, mean=0, trainable=True):
+        self.type = "RNN"
+        self.name = self.type if name is None else name
+        self.inputDim = inputDim
+        self.outputDim = outputDim
+        self.regularization = regularization
+        self.trainable = trainable
+    
+    def forward(self, inputs):
+        pass
+    
+    def backward(self, grads):
+        pass
+    
+    def cost(self):
+        return 0
+    
+    def __str__(self):
+        return "{} Layer, {}".format(self.type, self.inputDim)
+
+
 
 
 
