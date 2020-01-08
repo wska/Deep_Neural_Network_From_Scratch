@@ -1,3 +1,6 @@
+# William Skagerström
+# Last updated, 2019-01-07
+
 from model import Model
 from layers import Linear, Relu, Softmax, BatchNormalization
 from optimizers import SGD
@@ -28,8 +31,9 @@ def main():
     #reg = 0.0049132
     #lr = 0.07112
 
+
     #Settings 5
-    reg = 0.006
+    reg = 0.005
     lr = 0.007
     network = Model()
 
@@ -50,7 +54,7 @@ def main():
     
     timestamp = datetime.now().strftime('%Y-%b-%d--%H-%M-%S')
 
-    network.fit(trainingData, trainingLabels, epochs=40, batch_size=100, validationData=(validationData, validationLabels))
+    network.fit(trainingData, trainingLabels, epochs=30, batch_size=100, validationData=(validationData, validationLabels))
 
     
     plotAccuracy(network, "plots/", timestamp, title="3-layer network accuracy over epochs, eta:{}, lambda:{}".format(lr, reg))

@@ -1,3 +1,6 @@
+# William Skagerström
+# Last updated, 2019-01-07
+
 import numpy as np
 from layers import *
 import model
@@ -19,7 +22,7 @@ class SGD():
             batch_size = x_train.shape[1] # check if this is actually the number of samples
 
         self.history["name"] = self.model.name
-        
+
         for epoch in range(1, epochs+1):
             trainCost, trainAcc = self.train_epoch(x_train, y_train, batch_size)
             if validationData is not None:

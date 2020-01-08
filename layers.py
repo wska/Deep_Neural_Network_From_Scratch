@@ -1,3 +1,6 @@
+# William Skagerström
+# Last updated, 2019-01-07
+
 import numpy as np
 
 

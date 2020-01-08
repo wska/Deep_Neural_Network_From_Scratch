@@ -1,3 +1,6 @@
+# William Skagerström
+# Last updated, 2019-01-07
+
 from model import Model
 from layers import Linear, Relu, Softmax, BatchNormalization
 from optimizers import SGD
