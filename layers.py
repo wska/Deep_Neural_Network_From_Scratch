@@ -77,13 +77,24 @@ class Linear():
 
 
 class RNN():
-    def __init__(self, inputDim, outputDim, name=None, regularization=0, initializer=None, std=0.01, mean=0, trainable=True):
+    def __init__(self, inputDim=None, hiddenDim=100, name=None, regularization=0, initializer=None, std=0.01, mean=0, trainable=True):
         self.type = "RNN"
         self.name = self.type if name is None else name
         self.inputDim = inputDim
-        self.outputDim = outputDim
         self.regularization = regularization
         self.trainable = trainable
+
+        if initializer == None or initializer == "normal":
+    
+            self.U = np.random.normal(mean, std, (hiddenDim, inputDim))
+            self.W = np.random.normal(mean, std, (hiddenDim, hiddenDim))
+            self.V = np.random.normal(mean, std, (inputDim, hiddenDim))
+
+            self.bbias = np.zeros((hiddenDim, 1))
+            self.cbias = np.zeros((inputDim, 1))
+    
+        
+
     
     def forward(self, inputs):
         pass

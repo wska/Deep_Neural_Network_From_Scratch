@@ -2,9 +2,115 @@ import numpy as np
 from layers import *
 import model
 
+# Base optimizer class
+class Optimizer():
+    
+    def __init__(self):
+        if type(self) is Optimizer:
+            raise Exception("Cannot instantiate a base optimizer class.")
 
-class SGD():
+        self.history = {}
+        
+
+    def train(self):
+        raise NotImplementedError
+
+    def train_epoch(self):
+        raise NotImplementedError
+    
+    def update_weights(self): 
+        raise NotImplementedError
+    
+    def append_history(self, trainCost, trainAcc, valCost, valAcc, epoch):
+        
+        # EPOCHS
+        if "epochs" in self.history.keys():
+            self.history["epochs"].append(epoch)
+        
+        else:
+            self.history["epochs"] = [epoch]
+
+        # TRAINING ACCURACY
+        if "accuracy" in self.history.keys():
+            self.history["accuracy"].append(trainAcc)
+        
+        else:
+            self.history["accuracy"] = [trainAcc]
+
+        # TRAINING COST
+        if "cost" in self.history.keys():
+            self.history["cost"].append(trainCost)
+        
+        else:
+            self.history["cost"] = [trainCost]
+
+        if valAcc is not None:
+
+            # VALIDATION ACCURACY
+            if "val_accuracy" in self.history.keys():
+                self.history["val_accuracy"].append(valAcc)
+            
+            else:
+                self.history["val_accuracy"] = [valAcc]
+
+            # VALIDATION COST
+            if "val_cost" in self.history.keys():
+                self.history["val_cost"].append(valCost)
+            
+            else:
+                self.history["val_cost"] = [valCost]
+
+    def __str__(self):
+        return "Optimizer"
+
+
+
+class RMSprop(Optimizer):
+    def __init__(self):
+        Optimizer.__init__(self)
+        self.name = "RMSprop"
+        
+    def train(self):
+        raise NotImplementedError
+
+    def train_epoch(self):
+        raise NotImplementedError
+    
+    def update_weights(self): 
+        raise NotImplementedError
+
+    def __str__(self):
+        strrep = "RMSprop Optimizer"
+        #strrep = "SGD Optimizer\n  LR: "+str(self.lr)+"\n  LR-DECAY: "+str(self.lr_decay)+"\n  SHUFFLE ENABLED: "+str(self.shuffle)    
+        return strrep
+
+
+
+class AdaGrad(Optimizer):
+    def __init__(self):
+        Optimizer.__init__(self)
+        self.name = "RMSprop"
+    
+    def train(self):
+        raise NotImplementedError
+
+    def train_epoch(self):
+        raise NotImplementedError
+    
+    def update_weights(self): 
+        raise NotImplementedError
+
+    def __str__(self):
+        strrep = "RMSprop Optimizer"
+        #strrep = "SGD Optimizer\n  LR: "+str(self.lr)+"\n  LR-DECAY: "+str(self.lr_decay)+"\n  SHUFFLE ENABLED: "+str(self.shuffle)    
+        return strrep
+
+
+
+
+class SGD(Optimizer):
     def __init__(self, lr=0.001, lr_decay=1.0, momentum=0, shuffle=False, model=None, eta_max=None, lr_min=None):
+        Optimizer.__init__(self)
         self.lr = lr
         self.previous_lr = lr
         self.lr_decay = lr_decay
@@ -12,7 +118,6 @@ class SGD():
         self.shuffle = shuffle
         self.model = None
         self.momentum = momentum
-        self.history = {}
 
     def train(self, x_train, y_train, validationData=None, epochs=1, batch_size=None, verbose=True):
         if batch_size is None:
@@ -95,7 +200,7 @@ class SGD():
                 pass
 
 
-    
+    '''    
     def append_history(self, trainCost, trainAcc, valCost, valAcc, epoch):
         
         # EPOCHS
@@ -135,7 +240,7 @@ class SGD():
             else:
                 self.history["val_cost"] = [valCost]
 
-
+    '''
     def __str__(self):
         strrep = "SGD Optimizer\n  LR: "+str(self.lr)+"\n  LR-DECAY: "+str(self.lr_decay)+"\n  SHUFFLE ENABLED: "+str(self.shuffle)    
         return strrep
