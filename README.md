@@ -1,2 +1,2 @@
 # Deep_Neural_Network_From_Scratch
-A deep neural network written in raw numpy, used on the CIFAR-10 dataset.
+A deep neural network written in raw numpy, tested on the CIFAR-10 dataset. This small framework uses a syntax that is largely similair to that of the Keras framework. Models are created by stacking layer inside of a Model-class, which is then compiled and can then be fitted to a dataset. I will likely continue adding some updates such as new types of layers, loss functions etc. 
